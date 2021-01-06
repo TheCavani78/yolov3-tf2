@@ -181,7 +181,7 @@ def main(_argv):
             EarlyStopping(patience=3, verbose=1),
             ModelCheckpoint('checkpoints/yolov3_train_{epoch}.tf',
                             verbose=1, save_weights_only=True),
-            TensorBoard(log_dir='logs')
+            TensorBoard(log_dir='logs', update_freq='batch')
         ]
 
         history = model.fit(train_dataset,

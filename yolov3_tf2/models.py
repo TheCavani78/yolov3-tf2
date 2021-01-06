@@ -38,6 +38,15 @@ yolo_tiny_anchors = np.array([(10, 14), (23, 27), (37, 58),
 yolo_tiny_anchor_masks = np.array([[3, 4, 5], [0, 1, 2]])
 
 
+class AdaptedRelu:
+
+    def __init__(self, alpha):
+        self.alpha = alpha
+
+    def __call__(self, x):
+        return x * (1 / self.alpha + (1 - 1 / self.alpha) * (1 + tf.atan(self.alpha * x) * 2 / np.pi) / 2)
+
+
 def DarknetConv(x, filters, size, strides=1, batch_norm=True):
     if strides == 1:
         padding = 'same'
@@ -49,7 +58,7 @@ def DarknetConv(x, filters, size, strides=1, batch_norm=True):
                use_bias=not batch_norm, kernel_regularizer=l2(0.0005))(x)
     if batch_norm:
         x = BatchNormalization()(x)
-        x = LeakyReLU(alpha=0.1)(x)
+        x = AdaptedRelu(alpha=0.1)(x)
     return x
 
 
