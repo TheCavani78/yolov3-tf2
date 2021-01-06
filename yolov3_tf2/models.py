@@ -9,7 +9,6 @@ from tensorflow.keras.layers import (
     Conv2D,
     Input,
     Lambda,
-    LeakyReLU,
     MaxPool2D,
     UpSampling2D,
     ZeroPadding2D,
@@ -21,6 +20,15 @@ from tensorflow.keras.losses import (
     sparse_categorical_crossentropy
 )
 from .utils import broadcast_iou
+from .activation_funcs import (
+    relu,
+    selu_like,
+    selu_like2,
+    selu_like3,
+    smooth_relu1,
+    smooth_relu2,
+    smooth_relu3,
+)
 
 flags.DEFINE_integer('yolo_max_boxes', 100,
                      'maximum number of boxes per image')
@@ -44,7 +52,7 @@ class AdaptedRelu:
         self.alpha = alpha
 
     def __call__(self, x):
-        return x * (1 / self.alpha + (1 - 1 / self.alpha) * (1 + tf.atan(self.alpha * x) * 2 / np.pi) / 2)
+        return smooth_relu1(x, self.alpha)
 
 
 def DarknetConv(x, filters, size, strides=1, batch_norm=True):
