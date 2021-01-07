@@ -2,6 +2,7 @@ from absl import flags
 from absl.flags import FLAGS
 import numpy as np
 import tensorflow as tf
+import functools as fct
 from tensorflow.keras import Model
 from tensorflow.keras.layers import (
     Add,
@@ -41,7 +42,7 @@ yolo_tiny_anchors = np.array([(10, 14), (23, 27), (37, 58),
                              np.float32) / 416
 yolo_tiny_anchor_masks = np.array([[3, 4, 5], [0, 1, 2]])
 
-activation_function = [leaky_relu]
+activation_function = [LeakyReLU(alpha=0.1)]
 
 
 class AdaptedRelu:
@@ -50,7 +51,7 @@ class AdaptedRelu:
         self.alpha = alpha
 
     def __call__(self, x):
-        return activation_function[0](x, self.alpha)
+        return activation_function[0](x)
 
 
 def DarknetConv(x, filters, size, strides=1, batch_norm=True):
@@ -218,7 +219,8 @@ def yolo_nms(outputs, anchors, masks, classes):
 
 def YoloV3(size=None, channels=3, anchors=yolo_anchors,
            masks=yolo_anchor_masks, classes=80, training=False, activation_func="leaky_relu"):
-    activation_function[0] = str_to_funcs[activation_func]
+    if activation_func != "leaky_relu":
+        activation_function[0] = fct.partial(str_to_funcs[activation_func], lam=0.1)
     x = inputs = Input([size, size, channels], name='input')
 
     x_36, x_61, x = Darknet(name='yolo_darknet')(x)
