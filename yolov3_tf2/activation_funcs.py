@@ -29,3 +29,13 @@ def smooth_relu2(x, lam=1):
 def smooth_relu3(x, lam=1):
     return x*(1/lam + (1-1/lam) * (1 + tf.tanh(lam*x))/2)
 
+
+str_to_funcs = {
+    'leaky_relu': leaky_relu,
+    'selu_like': selu_like,
+    'selu_like2': selu_like2,
+    'selu_like3': selu_like3,
+    'smooth_relu1': smooth_relu1,
+    'smooth_relu2': smooth_relu2,
+    'smooth_relu3': smooth_relu3,
+}

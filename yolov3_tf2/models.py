@@ -21,7 +21,10 @@ from tensorflow.keras.losses import (
     sparse_categorical_crossentropy
 )
 from .utils import broadcast_iou
-from .activation_funcs import leaky_relu
+from .activation_funcs import (
+    leaky_relu,
+    str_to_funcs,
+)
 
 flags.DEFINE_integer('yolo_max_boxes', 100,
                      'maximum number of boxes per image')
@@ -215,7 +218,7 @@ def yolo_nms(outputs, anchors, masks, classes):
 
 def YoloV3(size=None, channels=3, anchors=yolo_anchors,
            masks=yolo_anchor_masks, classes=80, training=False, activation_func="leaky_relu"):
-    activation_function[0] = activation_func
+    activation_function[0] = str_to_funcs[activation_func]
     x = inputs = Input([size, size, channels], name='input')
 
     x_36, x_61, x = Darknet(name='yolo_darknet')(x)
