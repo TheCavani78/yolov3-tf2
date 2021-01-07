@@ -13,6 +13,7 @@ from tensorflow.keras.layers import (
     UpSampling2D,
     ZeroPadding2D,
     BatchNormalization,
+    LeakyReLU,
 )
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.losses import (
@@ -20,15 +21,7 @@ from tensorflow.keras.losses import (
     sparse_categorical_crossentropy
 )
 from .utils import broadcast_iou
-from .activation_funcs import (
-    relu,
-    selu_like,
-    selu_like2,
-    selu_like3,
-    smooth_relu1,
-    smooth_relu2,
-    smooth_relu3,
-)
+from .activation_funcs import leaky_relu
 
 flags.DEFINE_integer('yolo_max_boxes', 100,
                      'maximum number of boxes per image')
@@ -45,6 +38,8 @@ yolo_tiny_anchors = np.array([(10, 14), (23, 27), (37, 58),
                              np.float32) / 416
 yolo_tiny_anchor_masks = np.array([[3, 4, 5], [0, 1, 2]])
 
+activation_function = [leaky_relu]
+
 
 class AdaptedRelu:
 
@@ -52,7 +47,7 @@ class AdaptedRelu:
         self.alpha = alpha
 
     def __call__(self, x):
-        return smooth_relu1(x, self.alpha)
+        return activation_function[0](x, self.alpha)
 
 
 def DarknetConv(x, filters, size, strides=1, batch_norm=True):
@@ -219,7 +214,8 @@ def yolo_nms(outputs, anchors, masks, classes):
 
 
 def YoloV3(size=None, channels=3, anchors=yolo_anchors,
-           masks=yolo_anchor_masks, classes=80, training=False):
+           masks=yolo_anchor_masks, classes=80, training=False, activation_func="leaky_relu"):
+    activation_function[0] = activation_func
     x = inputs = Input([size, size, channels], name='input')
 
     x_36, x_61, x = Darknet(name='yolo_darknet')(x)

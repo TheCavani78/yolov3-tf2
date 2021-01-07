@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 
 
-def relu(x, lam=1):
+def leaky_relu(x, lam=1):
     return x if x > 0 else x/lam
 
 

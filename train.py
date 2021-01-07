@@ -42,6 +42,7 @@ flags.DEFINE_float('learning_rate', 1e-3, 'learning rate')
 flags.DEFINE_integer('num_classes', 80, 'number of classes in the model')
 flags.DEFINE_integer('weights_num_classes', None, 'specify num class for `weights` file if different, '
                      'useful in transfer learning with different number of classes')
+flags.DEFINE_string('activation_function', 'leaky_relu', 'activation function to use')
 
 
 def main(_argv):
@@ -55,7 +56,7 @@ def main(_argv):
         anchors = yolo_tiny_anchors
         anchor_masks = yolo_tiny_anchor_masks
     else:
-        model = YoloV3(FLAGS.size, training=True, classes=FLAGS.num_classes)
+        model = YoloV3(FLAGS.size, training=True, classes=FLAGS.num_classes, activation_func=FLAGS.activation_function)
         anchors = yolo_anchors
         anchor_masks = yolo_anchor_masks
 
